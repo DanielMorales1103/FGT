@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Builds de Electron (si luego usás electron-builder)
+dist/
+out/
+
+# Archivos temporales
+.DS_Store
+Thumbs.db
+*.log
+
+# Archivos de entorno (si usás más adelante)
+.env
