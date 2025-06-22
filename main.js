@@ -2,14 +2,17 @@ const { app, BrowserWindow } = require('electron');
 
 function createWindow () {
     const win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        show: false, // primero la creamos oculta
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
 
     win.loadFile('src/frontend/index.html');
+
+    win.maximize(); 
+    win.show();
 }
 
 app.whenReady().then(createWindow);

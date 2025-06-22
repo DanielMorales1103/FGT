@@ -1,11 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>Mi primera app Electron</title>
+        <title>Inventario Fundación Guillermo Toriello</title>
+        <link rel="stylesheet" href="assets/css/style.css">
     </head>
     <body>
-        <h1>Hola!</h1>
-        <p>Tu app Electron está funcionando.</p>
+        <div class="container">
+            <nav class="sidebar">
+                <h2>Menú</h2>
+                <ul>
+                    <li><a href="#" id="menu-inicio" onclick="loadPage('inicio')">Inicio</a></li>
+                    <li><a href="#" id="menu-inventario" onclick="loadPage('inventario')">Inventario</a></li>
+                    <li><a href="#" id="menu-reportes" onclick="loadPage('reportes')">Reportes</a></li>
+                    <li><a href="#" id="menu-configuracion" onclick="loadPage('configuracion')">Configuración</a></li>
+                </ul>
+            </nav>
+
+            <div class="content" id="content">
+                <!-- Aquí se cargará el contenido dinámico -->
+            </div>
+        </div>
+
+        <script src="assets/js/main.js"></script>
     </body>
 </html>
