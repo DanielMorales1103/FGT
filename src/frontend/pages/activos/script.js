@@ -48,8 +48,6 @@ function claseEstado(estado) {
 }
 
 function renderTabla() {
-    console.log("🚀 Entró a renderTabla");
-    console.log("activos:", activos);
     const tbody = document.getElementById("activos-body");
     tbody.innerHTML = "";
     let total = 0;
@@ -65,6 +63,7 @@ function renderTabla() {
             <td>Q ${a.costo_total.toLocaleString()}</td>
             <td>
                 <button class="btn-accion" onclick="mostrarDetalle(${idx})">🔍</button>
+                <button class="btn-accion" onclick="mostrarEditar(${idx})">✏️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -109,5 +108,60 @@ window.onclick = function(event) {
         cerrarModal();
     }
 }
+
+function mostrarEditar(idx) {
+    const activo = activos[idx];
+    document.getElementById("edit-index").value = idx;
+    document.getElementById("edit-financiado_por").value = activo.financiado_por || "";
+    document.getElementById("edit-proyecto").value = activo.proyecto || "";
+    document.getElementById("edit-clasificacion").value = activo.clasificacion || "";
+    document.getElementById("edit-concepto").value = activo.concepto || "";
+    document.getElementById("edit-cantidad").value = activo.cantidad || 0;
+    document.getElementById("edit-descripcion").value = activo.descripcion || "";
+    document.getElementById("edit-fecha_compra").value = activo.fecha_compra || "";
+    document.getElementById("edit-proveedor").value = activo.proveedor || "";
+    document.getElementById("edit-no_factura").value = activo.no_factura || "";
+    document.getElementById("edit-costo_unitario").value = activo.costo_unitario || 0;
+    document.getElementById("edit-costo_total").value = activo.costo_total || 0;
+    document.getElementById("edit-no_serie").value = activo.no_serie || "";
+    document.getElementById("edit-estado").value = activo.estado || "";
+    document.getElementById("edit-ubicacion_fisica").value = activo.ubicacion_fisica || "";
+    document.getElementById("edit-responsable").value = activo.responsable || "";
+    document.getElementById("edit-observaciones").value = activo.observaciones || "";
+
+    document.getElementById("editar-modal").style.display = "flex";
+}
+
+
+function cerrarEditarModal() {
+    document.getElementById("editar-modal").style.display = "none";
+}
+
+function guardarEdicion() {
+    const idx = document.getElementById("edit-index").value;
+    activos[idx] = {
+        financiado_por: document.getElementById("edit-financiado_por").value,
+        proyecto: document.getElementById("edit-proyecto").value,
+        clasificacion: document.getElementById("edit-clasificacion").value,
+        concepto: document.getElementById("edit-concepto").value,
+        cantidad: parseInt(document.getElementById("edit-cantidad").value),
+        descripcion: document.getElementById("edit-descripcion").value,
+        fecha_compra: document.getElementById("edit-fecha_compra").value,
+        proveedor: document.getElementById("edit-proveedor").value,
+        no_factura: document.getElementById("edit-no_factura").value,
+        costo_unitario: parseFloat(document.getElementById("edit-costo_unitario").value),
+        costo_total: parseFloat(document.getElementById("edit-costo_total").value),
+        no_serie: document.getElementById("edit-no_serie").value,
+        estado: document.getElementById("edit-estado").value,
+        ubicacion_fisica: document.getElementById("edit-ubicacion_fisica").value,
+        responsable: document.getElementById("edit-responsable").value,
+        observaciones: document.getElementById("edit-observaciones").value
+    };
+
+    cerrarEditarModal();
+    renderTabla();
+}
+
+
 
 renderTabla();
