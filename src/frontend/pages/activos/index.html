@@ -1,4 +1,35 @@
-<div class="page-container">
+<div class="activos-container">
     <h1>Activos</h1>
-    <p>Aquí podrás visualizar, buscar y filtrar los activos existentes.</p>
+
+    <div class="tabla-wrapper">
+        <table class="activos-table">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Clasificación</th>
+                    <th>Estado</th>
+                    <th>Responsable</th>
+                    <th>Costo Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="activos-body">
+                <!-- Se llenará dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totales" id="totales">
+        Total activos: <strong>0</strong> | Valor total: <strong>Q 0</strong>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="detalle-modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <div id="detalle-content">
+            <!-- Detalles del activo aquí -->
+        </div>
+    </div>
 </div>

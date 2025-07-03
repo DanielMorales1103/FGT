@@ -17,7 +17,7 @@ function loadPage(page) {
         .then(html => {
             content.innerHTML = html;
 
-            // Opcional: si cada página tiene su propio CSS
+            // ---- CSS dinámico ----
             const customCssId = 'custom-css';
             let oldLink = document.getElementById(customCssId);
             if (oldLink) oldLink.remove();
@@ -27,6 +27,24 @@ function loadPage(page) {
             link.href = `pages/${page}/style.css`;
             link.id = customCssId;
             document.head.appendChild(link);
+
+            // ---- SCRIPT dinámico ----
+            fetch(`pages/${page}/script.js`, {method: 'HEAD'})
+                .then(res => {
+                    if (res.ok) {
+                        const scriptId = 'custom-script';
+                        let oldScript = document.getElementById(scriptId);
+                        if (oldScript) oldScript.remove();
+
+                        let script = document.createElement('script');
+                        script.src = `pages/${page}/script.js`;
+                        script.id = scriptId;
+                        script.onload = () => console.log(`✅ script.js de ${page} cargado correctamente`);
+                        document.body.appendChild(script);
+                    } else {
+                        console.log(`ℹ No hay script.js en ${page}, continuando sin script`);
+                    }
+                });
         })
         .catch(error => {
             content.innerHTML = '<h1>Error al cargar la página</h1>';
