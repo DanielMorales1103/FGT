@@ -13,20 +13,20 @@
             <label>Clasificación (Tipo de activo):</label>
             <input type="text" name="clasificacion">
         </div>
-
-        <div class="form-group">
-            <label>Concepto:</label>
-            <input type="text" name="concepto">
-        </div>
+        <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Cantidad:</label>
             <input type="number" name="cantidad" min="1">
         </div>
         <div class="form-group">
-            <label>Descripción:</label>
-            <input type="text" name="descripcion">
+            <label>Costo unitario (Q):</label>
+            <input type="number" name="costo_unitario" step="0.01">
         </div>
-
+        <div class="form-group">
+            <label>Costo total:</label>
+            <input type="number" name="costo_total" step="0.01" readonly>
+        </div>
+        <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Fecha de compra:</label>
             <input type="date" name="fecha_compra">
@@ -39,20 +39,20 @@
             <label>No. Factura:</label>
             <input type="text" name="no_factura">
         </div>
-
+        <!-- ------------------------------------ -->
         <div class="form-group">
-            <label>Costo unitario (Q):</label>
-            <input type="number" name="costo_unitario" step="0.01">
-        </div>
-        <div class="form-group">
-            <label>Costo total:</label>
-            <input type="number" name="costo_total" step="0.01">
+            <label>Concepto:</label>
+            <input type="text" name="concepto">
         </div>
         <div class="form-group">
             <label>No. de serie:</label>
             <input type="text" name="no_serie">
         </div>
-
+        <div class="form-group">
+            <label>Descripción:</label>
+            <input type="text" name="descripcion">
+        </div>
+        <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Estado:</label>
             <input type="text" name="estado">
@@ -65,12 +65,12 @@
             <label>Responsable:</label>
             <input type="text" name="responsable">
         </div>
-
+        <!-- ------------------------------------ -->
         <div class="form-group full-width">
             <label>Observaciones:</label>
             <textarea name="observaciones" rows="3"></textarea>
         </div>
 
-        <button type="submit">Guardar</button>
+        <button type="submit">Insertar</button>
     </form>
 </div>

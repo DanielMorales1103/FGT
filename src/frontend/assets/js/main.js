@@ -37,18 +37,15 @@ function loadPage(page) {
                         if (oldScript) oldScript.remove();
 
                         let script = document.createElement('script');
-                        script.src = `pages/${page}/script.js`;
+                        script.src = `pages/${page}/script.js?t=${Date.now()}`;
                         script.id = scriptId;
-                        script.onload = () => console.log(`✅ script.js de ${page} cargado correctamente`);
+                        script.async = false;
                         document.body.appendChild(script);
-                    } else {
-                        console.log(`ℹ No hay script.js en ${page}, continuando sin script`);
                     }
                 });
         })
         .catch(error => {
             content.innerHTML = '<h1>Error al cargar la página</h1>';
-            console.error(error);
         });
 }
 

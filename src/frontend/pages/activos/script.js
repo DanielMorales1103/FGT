@@ -1,42 +1,12 @@
-console.log("✅ script.js de activos realmente ejecutado");
-const activos = [
-    {
-        financiado_por: "FGT",
-        proyecto: "2023-Tecnología",
-        clasificacion: "Computo",
-        concepto: "Laptop Dell 14\"",
-        cantidad: 5,
-        descripcion: "Core i5, 8GB, SSD 512",
-        fecha_compra: "2023-04-10",
-        proveedor: "Dell Guatemala",
-        no_factura: "001234",
-        costo_unitario: 6500,
-        costo_total: 32500,
-        no_serie: "ABC1234",
-        estado: "Operativo",
-        ubicacion_fisica: "Oficina 1",
-        responsable: "Pedro Gómez",
-        observaciones: "Buen estado"
-    },
-    {
-        financiado_por: "Cooperación",
-        proyecto: "Audio 2022",
-        clasificacion: "Audio",
-        concepto: "Proyector Epson",
-        cantidad: 2,
-        descripcion: "Full HD, HDMI",
-        fecha_compra: "2022-11-05",
-        proveedor: "Epson CA",
-        no_factura: "005678",
-        costo_unitario: 3200,
-        costo_total: 6400,
-        no_serie: "XYZ7890",
-        estado: "En reparación",
-        ubicacion_fisica: "Sala reuniones",
-        responsable: "Juan Pérez",
-        observaciones: "Enviado a servicio"
-    }
-];
+var { ipcRenderer } = require('electron');
+
+var activos = [];
+
+ipcRenderer.invoke('get-activos')
+    .then(data => {
+        activos = data;
+        renderTabla();
+    })
 
 function claseEstado(estado) {
     switch (estado) {
@@ -139,18 +109,22 @@ function cerrarEditarModal() {
 
 function guardarEdicion() {
     const idx = document.getElementById("edit-index").value;
+    const cantidad = parseInt(document.getElementById("edit-cantidad").value) || 0;
+    const costo_unitario = parseFloat(document.getElementById("edit-costo_unitario").value) || 0;
+    const total = cantidad * costo_unitario;
+
     activos[idx] = {
         financiado_por: document.getElementById("edit-financiado_por").value,
         proyecto: document.getElementById("edit-proyecto").value,
         clasificacion: document.getElementById("edit-clasificacion").value,
         concepto: document.getElementById("edit-concepto").value,
-        cantidad: parseInt(document.getElementById("edit-cantidad").value),
+        cantidad: cantidad, //parseInt(document.getElementById("edit-cantidad").value),
         descripcion: document.getElementById("edit-descripcion").value,
         fecha_compra: document.getElementById("edit-fecha_compra").value,
         proveedor: document.getElementById("edit-proveedor").value,
         no_factura: document.getElementById("edit-no_factura").value,
-        costo_unitario: parseFloat(document.getElementById("edit-costo_unitario").value),
-        costo_total: parseFloat(document.getElementById("edit-costo_total").value),
+        costo_unitario: costo_unitario,//parseFloat(document.getElementById("edit-costo_unitario").value),
+        costo_total: total, //parseFloat(document.getElementById("edit-costo_total").value),
         no_serie: document.getElementById("edit-no_serie").value,
         estado: document.getElementById("edit-estado").value,
         ubicacion_fisica: document.getElementById("edit-ubicacion_fisica").value,
@@ -162,6 +136,28 @@ function guardarEdicion() {
     renderTabla();
 }
 
+// Escuchar cambios en cantidad y costo unitario
+document.addEventListener('input', function(e) {
+    if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
+        recalcularTotal();
+    }
+});
 
+function recalcularTotal() {
+    const cantidad = parseInt(document.getElementById("edit-cantidad").value) || 0;
+    const costo_unitario = parseFloat(document.getElementById("edit-costo_unitario").value) || 0;
+    const total = cantidad * costo_unitario;
+    document.getElementById("edit-costo_total").value = total;
+}
 
-renderTabla();
+function seguroRenderTabla() {
+    const check = setInterval(() => {
+        if (document.getElementById("activos-body")) {
+            clearInterval(check);
+            renderTabla();
+        }
+    }, 20);
+}
+
+seguroRenderTabla();
+
