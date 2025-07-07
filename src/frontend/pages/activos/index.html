@@ -1,6 +1,44 @@
 <div class="activos-container">
     <h1>Activos</h1>
 
+    <div class="filtros">
+        <div class="filtros-row">
+            <div class="filtro-grupo">
+                <input type="text" id="filtro-busqueda" placeholder="🔍 Buscar…">
+            </div>
+            <div class="filtro-grupo">
+                <select id="filtro-estado">
+                    <option value="">— Todos los estados —</option>
+                    <option>Operativo</option>
+                    <option>En reparación</option>
+                    <option>Fuera de servicio</option>
+                </select>
+            </div>
+            <div class="filtro-grupo">
+                <input type="text" id="filtro-clasificacion" placeholder="Clasificación…">
+            </div>
+            <div class="filtro-grupo">
+                <input type="text" id="filtro-ubicacion" placeholder="Ubicación física…">
+            </div>
+            <div class="filtro-grupo">
+                <input type="text" id="filtro-responsable" placeholder="Responsable…">
+            </div>
+        </div>
+        <div class="filtros-row">
+            <div class="filtro-grupo">
+                <label>Fecha compra:</label>
+                <input type="date" id="filtro-fecha-desde">
+                <input type="date" id="filtro-fecha-hasta">
+            </div>
+            <div class="filtro-grupo">
+                <label>Costo total (Q):</label>
+                <input type="number" id="filtro-costo-min" placeholder="Mín.">
+                <input type="number" id="filtro-costo-max" placeholder="Máx.">
+            </div>
+            <button id="btn-reset-filtros" class="filtro-boton">Limpiar filtros</button>
+        </div>
+    </div>
+
     <div class="tabla-wrapper">
         <table class="activos-table">
             <thead>
@@ -10,6 +48,8 @@
                     <th>Estado</th>
                     <th>Responsable</th>
                     <th>Costo Total</th>
+                    <th>Fecha de compra</th>
+                    <th>Ubicación física</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

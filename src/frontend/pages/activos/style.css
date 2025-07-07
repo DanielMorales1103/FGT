@@ -133,3 +133,62 @@
 .botones-modal button:hover {
     background: #3498db;
 }
+
+.filtros {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.filtros-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.filtros-row .filtro-grupo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.filtros-row .filtro-boton {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #2980b9;      
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+}
+.filtro-boton:hover {
+    background-color: #125e91;
+}
+
+.filtro-grupo input,
+.filtro-grupo select {
+    flex: 1;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.filtro-grupo label {
+    white-space: nowrap;
+    font-weight: 500;
+}

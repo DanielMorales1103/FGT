@@ -17,12 +17,12 @@ function claseEstado(estado) {
     }
 }
 
-function renderTabla() {
+function renderTabla(lista = activos) {
     const tbody = document.getElementById("activos-body");
     tbody.innerHTML = "";
     let total = 0;
 
-    activos.forEach((a, idx) => {
+    lista.forEach((a, idx) => {
         total += a.costo_total;
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -31,6 +31,8 @@ function renderTabla() {
             <td><span class="badge ${claseEstado(a.estado)}">${a.estado}</span></td>
             <td>${a.responsable}</td>
             <td>Q ${a.costo_total.toLocaleString()}</td>
+            <td>${a.fecha_compra}</td>
+            <td>${a.ubicacion_fisica}</td>
             <td>
                 <button class="btn-accion" onclick="mostrarDetalle(${idx})">🔍</button>
                 <button class="btn-accion" onclick="mostrarEditar(${idx})">✏️</button>
@@ -136,7 +138,6 @@ function guardarEdicion() {
     renderTabla();
 }
 
-// Escuchar cambios en cantidad y costo unitario
 document.addEventListener('input', function(e) {
     if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
         recalcularTotal();
@@ -161,3 +162,81 @@ function seguroRenderTabla() {
 
 seguroRenderTabla();
 
+function stripAccents(str) {
+  return str
+    .normalize('NFD')              
+    .replace(/[\u0300-\u036f]/g, '') 
+    .toLowerCase();
+}
+
+function applyFilters() {
+    const texto   = stripAccents(document.getElementById('filtro-busqueda').value);
+    const estado  = document.getElementById('filtro-estado').value;
+    const clasif  = stripAccents(document.getElementById('filtro-clasificacion').value);
+    const ubic    = stripAccents(document.getElementById('filtro-ubicacion').value);
+    const resp    = stripAccents(document.getElementById('filtro-responsable').value);
+    const desde   = document.getElementById('filtro-fecha-desde').value;
+    const hasta   = document.getElementById('filtro-fecha-hasta').value;
+    const minCost = parseFloat(document.getElementById('filtro-costo-min').value) || 0;
+    const maxCost = parseFloat(document.getElementById('filtro-costo-max').value) || Infinity;
+
+    const filtrados = activos.filter(a => {
+        const conc  = stripAccents(a.concepto);
+        const prov  = stripAccents(a.proveedor);
+        const respA = stripAccents(a.responsable);
+        const clas  = stripAccents(a.clasificacion);
+        const ubi   = stripAccents(a.ubicacion_fisica);
+        const fc    = a.fecha_compra;
+        const ct    = a.costo_total;
+
+        // Cada condición de filtro
+        const matchTexto = !texto
+            || conc.includes(texto)
+            || prov.includes(texto)
+            || respA.includes(texto);
+
+        const matchEstado = !estado || a.estado === estado;
+        const matchClasif = !clasif  || clas.includes(clasif);
+        const matchUbic   = !ubic    || ubi.includes(ubic);
+        const matchResp   = !resp    || respA.includes(resp);
+
+        const matchFecha  = (!desde || fc >= desde) && (!hasta || fc <= hasta);
+        const matchCosto  = ct >= minCost && ct <= maxCost;
+
+        return matchTexto && matchEstado && matchClasif && matchUbic
+            && matchResp && matchFecha && matchCosto;
+    });
+
+    renderTabla(filtrados);
+}
+
+['input','change'].forEach(evt => {
+    document.querySelectorAll(
+        '#filtro-busqueda, #filtro-estado, ' +
+        '#filtro-clasificacion, #filtro-ubicacion, #filtro-responsable, ' +
+        '#filtro-fecha-desde, #filtro-fecha-hasta, ' +
+        '#filtro-costo-min, #filtro-costo-max'
+    ).forEach(el => el.addEventListener(evt, applyFilters));
+});
+
+document.getElementById('btn-reset-filtros').addEventListener('click', () => {
+    document.querySelectorAll(
+        '#filtro-busqueda, #filtro-estado, ' +
+        '#filtro-clasificacion, #filtro-ubicacion, #filtro-responsable, ' +
+        '#filtro-fecha-desde, #filtro-fecha-hasta, ' +
+        '#filtro-costo-min, #filtro-costo-max'
+    ).forEach(el => { el.value = ''; });
+    applyFilters();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    const filtrosIds = ['filtro-busqueda', 'filtro-estado', 'filtro-clasificacion', 'filtro-ubicacion',
+        'filtro-responsable', 'filtro-fecha-desde', 'filtro-fecha-hasta', 'filtro-costo-min', 'filtro-costo-max',];
+
+    filtrosIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input',  applyFilters);
+        el.addEventListener('change', applyFilters);
+    });
+});

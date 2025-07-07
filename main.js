@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { leerArchivo } = require('./src/backend/activos'); // carga de backend
 
+let activosCache = [];
+
 function createWindow () {
     const win = new BrowserWindow({
         show: false, // primero la creamos oculta
@@ -17,11 +19,14 @@ function createWindow () {
     win.show();
 }
 
-ipcMain.handle('get-activos', async () => {
-    return leerArchivo();
-});
+app.whenReady().then(() => {
+    activosCache = leerArchivo();
+    createWindow();
+})
 
-app.whenReady().then(createWindow);
+ipcMain.handle('get-activos', async () => {
+    return activosCache;
+});
 
 // Esto es para cerrar correctamente en Mac
 app.on('window-all-closed', () => {
