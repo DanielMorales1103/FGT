@@ -109,7 +109,7 @@ function cerrarEditarModal() {
     document.getElementById("editar-modal").style.display = "none";
 }
 
-function guardarEdicion() {
+async function guardarEdicion() {
     const idx = document.getElementById("edit-index").value;
     const cantidad = parseInt(document.getElementById("edit-cantidad").value) || 0;
     const costo_unitario = parseFloat(document.getElementById("edit-costo_unitario").value) || 0;
@@ -134,9 +134,11 @@ function guardarEdicion() {
         observaciones: document.getElementById("edit-observaciones").value
     };
 
+    await ipcRenderer.invoke('save-activos', activos);
     cerrarEditarModal();
     renderTabla();
 }
+
 
 document.addEventListener('input', function(e) {
     if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
