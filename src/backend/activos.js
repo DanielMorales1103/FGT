@@ -12,6 +12,7 @@ function guardarArchivo(datos) {
 function leerArchivo() {
     try {
         if (!fs.existsSync(DATA_FILE)) {
+            console.warn('Archivo de activos no encontrado');
             return []; // retorna array vacío si no existe el archivo
         }
         const data = fs.readFileSync(DATA_FILE, 'utf-8');
@@ -23,7 +24,7 @@ function leerArchivo() {
 }
 
 module.exports = { leerArchivo, guardarArchivo };
-º
+
 
 // esta función después va a leer el archivo JSON
 // function leerArchivo() {
