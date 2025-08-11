@@ -19,9 +19,7 @@
         const selClas = document.getElementById('sel-clasificacion');
         if (!selClas) return; // Si no está esta página, sal.
 
-        console.log('[RENDERER] Ingreso script cargado');
         const cats = await ipcRenderer.invoke('get-catalogos');
-        console.log('[RENDERER] cats =>', cats);
 
         // Llenar selects
         setupSimpleSelect(

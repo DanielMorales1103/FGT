@@ -23,7 +23,6 @@ function createWindow () {
 app.whenReady().then(() => {
     ensureFile();
     const cats = leerCatalogos();
-    console.log('[MAIN] catalogos.json leído:', cats);
     activosCache = leerArchivo();
     createWindow();
 })
