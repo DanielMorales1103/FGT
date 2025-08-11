@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
+const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE} = require('./src/backend/catalogo');
 
 let activosCache = [];
 
@@ -20,18 +21,43 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
+    ensureFile();
+    const cats = leerCatalogos();
+    console.log('[MAIN] catalogos.json leído:', cats);
     activosCache = leerArchivo();
     createWindow();
 })
 
 ipcMain.handle('get-activos', async () => {
-    return activosCache;
+    return leerArchivo();
 });
 
 
 ipcMain.handle('save-activos', async (event, nuevosActivos) => {
     guardarArchivo(nuevosActivos);
     return { success: true };
+});
+
+ipcMain.handle('add-activo', async (event, nuevoActivo) => {
+    const actuales = leerArchivo();
+    actuales.push(nuevoActivo);
+    guardarArchivo(actuales);
+    return { success: true, activos: actuales };
+});
+
+ipcMain.handle('get-catalogos', async () => {
+    return leerCatalogos(); 
+});
+
+ipcMain.handle('add-catalogo-item', async (event, payload) => {
+    const { catalogo, valor, grupo } = payload || {};
+    if (catalogo === 'ubicaciones') {
+        const ubic = agregarUbicacion(grupo, valor); // grupo = sede, valor = área
+        return { success: true, items: ubic };
+    } else {
+        const lista = agregarAlCatalogo(catalogo, valor);
+        return { success: true, items: lista };
+    }
 });
 
 // Esto es para cerrar correctamente en Mac

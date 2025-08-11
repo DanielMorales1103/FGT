@@ -1,5 +1,5 @@
 (() => {
-    const ipcRenderer = window.ipc;
+    const { ipcRenderer } = require('electron');
 
     var activos = [];
 
@@ -76,11 +76,6 @@
         document.getElementById("detalle-modal").style.display = "none";
     }
 
-    window.onclick = function(event) {
-        if (event.target == document.getElementById("detalle-modal")) {
-            cerrarModal();
-        }
-    }
 
     function mostrarEditar(idx) {
         const activo = activos[idx];
@@ -140,6 +135,20 @@
         renderTabla();
     }
 
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("detalle-modal")) {
+            cerrarModal();
+        }
+        if (event.target == document.getElementById("editar-modal")) {
+            cerrarEditarModal();
+        }
+    }
+
+    window.mostrarDetalle = mostrarDetalle;
+    window.mostrarEditar = mostrarEditar;
+    window.cerrarModal = cerrarModal;
+    window.cerrarEditarModal = cerrarEditarModal;
+    window.guardarEdicion = guardarEdicion;
 
     document.addEventListener('input', function(e) {
         if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
