@@ -2,24 +2,60 @@
     const { ipcRenderer } = require('electron');
 
     var activos = [];
+    let catsCache = null;
 
-    ipcRenderer.invoke('get-activos')
-        .then(data => {
-            activos = data;
-            renderTabla();
-        })
+    // ---------- Carga inicial ----------
+    (async () => {
+        catsCache = await ipcRenderer.invoke('get-catalogos'); // clasificaciones, proveedores, estados, ubicaciones
+        activos   = await ipcRenderer.invoke('get-activos');
+        renderTabla();
+        seguroRenderTabla(); // por si el tbody aún no está presente
+    })();
+
+    // ---------- Helpers para selects ----------
+    function fillSimple(selectEl, items, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        (items || []).forEach(v => selectEl.appendChild(new Option(v, v)));
+        selectEl.value = selected || '';
+    }
+
+    function fillUbicaciones(selectEl, ubicacionesObj, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        const sedes = Object.keys(ubicacionesObj || {}).sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+        for (const sede of sedes) {
+        const og = document.createElement('optgroup'); og.label = sede;
+        (ubicacionesObj[sede] || []).forEach(area => og.appendChild(new Option(`${sede} - ${area}`, `${sede} - ${area}`)));
+        selectEl.appendChild(og);
+        }
+        selectEl.value = selected || '';
+    }
+
+    // ipcRenderer.invoke('get-activos')
+    //     .then(data => {
+    //         activos = data;
+    //         renderTabla();
+    //     })
 
     function claseEstado(estado) {
-        switch (estado) {
-            case "Operativo": return "operativo";
-            case "En reparación": return "en-reparacion";
-            case "Fuera de servicio": return "fuera-servicio";
-            default: return "";
-        }
+        const m = {
+            'Operativo': 'operativo',
+            'En reparación': 'en-reparacion',
+            'Fuera de servicio': 'fuera-servicio',
+            'Buen estado': 'operativo',
+            'Mal estado': 'fuera-servicio',
+            'Necesita reparación': 'en-reparacion',
+        };
+        return m[estado] || '';
     }
+
 
     function renderTabla(lista = activos) {
         const tbody = document.getElementById("activos-body");
+        if (!tbody) return;
         tbody.innerHTML = "";
         let total = 0;
 
@@ -76,9 +112,21 @@
         document.getElementById("detalle-modal").style.display = "none";
     }
 
+    async function ensureCats() {
+        if (!catsCache) catsCache = await ipcRenderer.invoke('get-catalogos');
+    }
 
-    function mostrarEditar(idx) {
+    async function mostrarEditar(idx) {
+        await ensureCats();
         const activo = activos[idx];
+
+        fillSimple(document.getElementById("edit-clasificacion"), catsCache?.clasificaciones);
+        fillSimple(document.getElementById("edit-proveedor"),     catsCache?.proveedores);
+        // Estados: si quieres agregar desde modal, cambia false → true y usa setupAddHandlers
+        fillSimple(document.getElementById("edit-estado"),        catsCache?.estados);
+        fillUbicaciones(document.getElementById("edit-ubicacion_fisica"), catsCache?.ubicaciones);
+
+
         document.getElementById("edit-index").value = idx;
         document.getElementById("edit-financiado_por").value = activo.financiado_por || "";
         document.getElementById("edit-proyecto").value = activo.proyecto || "";
