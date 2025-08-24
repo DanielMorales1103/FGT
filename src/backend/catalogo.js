@@ -125,11 +125,31 @@ function agregarUbicacion(sede, area) {
     return cats.ubicaciones;
 }
 
+function eliminarDeCatalogo(catalogo, valor, grupo) {
+    const cats = leerCatalogos();
+    const norm = (s) => (s || '').trim().toLowerCase();
+
+    if (catalogo === 'ubicaciones') {
+        const sede = (grupo || '').trim();
+        if (!sede || !cats.ubicaciones?.[sede]) return cats;
+        cats.ubicaciones[sede] = (cats.ubicaciones[sede] || [])
+        .filter(a => norm(a) !== norm(valor) && a !== '__init__');
+        if (cats.ubicaciones[sede].length === 0) delete cats.ubicaciones[sede];
+    } else {
+        cats[catalogo] = (cats[catalogo] || []).filter(v => norm(v) !== norm(valor));
+    }
+
+    guardarCatalogos(cats);          
+    return cats;
+}
+
+
 module.exports = {
     leerCatalogos,
     guardarCatalogos,
     agregarAlCatalogo,   
     agregarUbicacion,    
     ensureFile,
-    CATALOG_FILE
+    CATALOG_FILE,
+    eliminarDeCatalogo
 };

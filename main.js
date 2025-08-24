@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
-const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE} = require('./src/backend/catalogo');
+const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE, eliminarDeCatalogo} = require('./src/backend/catalogo');
 
 let activosCache = [];
 
@@ -58,6 +58,12 @@ ipcMain.handle('add-catalogo-item', async (event, payload) => {
         return { success: true, items: lista };
     }
 });
+
+ipcMain.handle('delete-catalogo-item', async (_evt, { catalogo, valor, grupo }) => {
+  const cats = eliminarDeCatalogo(catalogo, valor, grupo);
+  return { success: true, items: catalogo === 'ubicaciones' ? cats.ubicaciones : cats[catalogo] };
+});
+
 
 // Esto es para cerrar correctamente en Mac
 app.on('window-all-closed', () => {
