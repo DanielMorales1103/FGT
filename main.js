@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
 const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE, eliminarDeCatalogo} = require('./src/backend/catalogo');
+const { importDesdeExcel } = require('./src/backend/importer');
 
 let activosCache = [];
 
@@ -76,6 +77,18 @@ ipcMain.handle('ui-confirm', async (_evt, { message, detail }) => {
         noLink: true
     });
     return response === 1; // true si pulsó "Eliminar"
+});
+
+ipcMain.handle('import-excel', async (_evt, { filePath, buffer, sheetName }) => {
+    try {
+        if (!filePath && !buffer) throw new Error('No se recibió archivo');
+
+        const res = await importDesdeExcel({ filePath, buffer, sheetName });
+        return { success: true, ...res };
+    } catch (e) {
+        console.error('Error importando Excel:', e);
+        return { success: false, message: e.message || 'Error desconocido' };
+    }
 });
 
 // Esto es para cerrar correctamente en Mac

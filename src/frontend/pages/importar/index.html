@@ -1,4 +1,14 @@
 <div class="page-container">
-    <h1>Importar Excel</h1>
-    <p>Sube un archivo Excel con el formato adecuado para cargar los activos automáticamente.</p>
+  <h1>Importar Excel</h1>
+  <p>Sube un archivo Excel con el formato adecuado para cargar los activos automáticamente.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    Arrastra aquí tu archivo Excel (.xlsx) o haz clic para seleccionarlo
+  </div>
+
+  <input id="file-input" type="file" accept=".xlsx" hidden />
+
+  <div id="file-info" class="file-info">Ningún archivo seleccionado.</div>
+
+  <button id="btn-importar" type="button" disabled>Importar Excel</button>
 </div>
