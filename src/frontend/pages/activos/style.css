@@ -111,7 +111,8 @@
     flex-direction: column;
     font-weight: bold;
 }
-.form-grid input {
+.form-grid input 
+, .form-grid select, .form-grid textarea {
     padding: 8px;
     margin-top: 4px;
     border-radius: 4px;
