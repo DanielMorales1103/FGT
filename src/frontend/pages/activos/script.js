@@ -35,16 +35,17 @@
     }
 
     function claseEstado(estado) {
-        const m = {
-            'Operativo': 'operativo',
-            'En reparación': 'en-reparacion',
-            'Fuera de servicio': 'fuera-servicio',
-            'Buen estado': 'operativo',
-            'Mal estado': 'fuera-servicio',
-            'Necesita reparación': 'en-reparacion',
-        };
-        return m[estado] || '';
+        const n = String(estado || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita acentos
+            .trim().toLowerCase();
+
+        // Canoniza a 3 valores
+        if (n === 'buen estado')             return 'operativo';       // verde
+        if (n === 'mal estado')              return 'fuera-servicio';  // rojo
+        if (n === 'necesita reparacion')     return 'en-reparacion';   // naranja
+        return ''; // sin clase si no matchea
     }
+
 
     function renderTabla(lista = activos) {
         const tbody = document.getElementById("activos-body");
