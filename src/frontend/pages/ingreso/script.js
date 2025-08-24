@@ -15,91 +15,39 @@
     }
 
     async function initIngreso() {
-        // Asegúrate de que la página correcta está montada
         const selClas = document.getElementById('sel-clasificacion');
-        if (!selClas) return; // Si no está esta página, sal.
+        if (!selClas) return; // si no es esta página, salir
 
         const cats = await ipcRenderer.invoke('get-catalogos');
 
-        // Llenar selects
-        setupSimpleSelect(
-            document.getElementById('sel-clasificacion'),
-            cats.clasificaciones,
-            { allowAdd: true, addLabel: '➕ Agregar clasificación…', catalogKey: 'clasificaciones' }
-        );
-        setupSimpleSelect(
-            document.getElementById('sel-proveedor'),
-            cats.proveedores,
-            { allowAdd: true, addLabel: '➕ Agregar proveedor…', catalogKey: 'proveedores' }
-        );
-        setupSimpleSelect(
-            document.getElementById('sel-estado'),
-            cats.estados,
-            { allowAdd: false, catalogKey: 'estados' }
-        );
-        setupUbicacionesSelect(
-            document.getElementById('sel-ubicacion'),
-            cats.ubicaciones,
-            { allowAdd: true, addLabel: '➕ Agregar ubicación…' }
-        );
+        // Llenar selects SIN opción de agregar
+        fillSimple(document.getElementById('sel-clasificacion'), cats.clasificaciones);
+        fillSimple(document.getElementById('sel-proveedor'),     cats.proveedores);
+        fillSimple(document.getElementById('sel-estado'),        cats.estados);
+        fillUbicaciones(document.getElementById('sel-ubicacion'), cats.ubicaciones);
     }
 
-
-    function setupSimpleSelect(selectEl, items, opts = {}) {
+    // Helpers sin modo "agregar"
+    function fillSimple(selectEl, items, selected = '') {
         if (!selectEl) return;
-        const { allowAdd, addLabel, catalogKey } = opts;
-        fillSimple(selectEl, items, allowAdd, addLabel);
-
-        selectEl.addEventListener('change', async (e) => {
-            if (e.target.value === '__add__' && allowAdd) {
-            const label = selectEl.previousElementSibling?.textContent?.replace(':','') || 'nuevo valor';
-            const nuevo = prompt(`Agregar ${label}`);
-            if (nuevo && nuevo.trim()) {
-                const resp = await ipcRenderer.invoke('add-catalogo-item', { catalogo: catalogKey, valor: nuevo.trim() });
-                if (resp?.success) fillSimple(selectEl, resp.items, allowAdd, addLabel, nuevo.trim());
-            } else {
-                fillSimple(selectEl, items, allowAdd, addLabel);
-            }
-            }
-        });
-    }
-
-    function fillSimple(selectEl, items, allowAdd = false, addLabel = '➕ Agregar…', selected = '') {
         selectEl.innerHTML = '';
         selectEl.appendChild(new Option('— Seleccione —', ''));
         (items || []).forEach(v => selectEl.appendChild(new Option(v, v)));
-        if (allowAdd) selectEl.appendChild(new Option(addLabel, '__add__'));
         selectEl.value = selected || '';
     }
 
-    function setupUbicacionesSelect(selectEl, ubicaciones, opts = {}) {
+    function fillUbicaciones(selectEl, ubicacionesObj, selected = '') {
         if (!selectEl) return;
-        const { allowAdd, addLabel } = opts;
-        fillUbicaciones(selectEl, ubicaciones, allowAdd, addLabel);
-
-        selectEl.addEventListener('change', async (e) => {
-            if (e.target.value === '__add__' && allowAdd) {
-            const sede = prompt('Sede/Oficina (ej. "Oficina Central")');
-            if (!sede || !sede.trim()) return fillUbicaciones(selectEl, ubicaciones, allowAdd, addLabel);
-            const area = prompt(`Área/Zona dentro de "${sede.trim()}" (ej. "Contabilidad")`);
-            if (!area || !area.trim()) return fillUbicaciones(selectEl, ubicaciones, allowAdd, addLabel);
-
-            const resp = await ipcRenderer.invoke('add-catalogo-item', { catalogo: 'ubicaciones', grupo: sede.trim(), valor: area.trim() });
-            if (resp?.success) fillUbicaciones(selectEl, resp.items, allowAdd, addLabel, `${sede.trim()} - ${area.trim()}`);
-            }
-        });
-    }
-
-    function fillUbicaciones(selectEl, ubicacionesObj, allowAdd = false, addLabel = '➕ Agregar ubicación…', selected = '') {
         selectEl.innerHTML = '';
         selectEl.appendChild(new Option('— Seleccione —', ''));
-        const sedes = Object.keys(ubicacionesObj || {}).sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+        const sedes = Object.keys(ubicacionesObj || {}).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
         for (const sede of sedes) {
-            const og = document.createElement('optgroup'); og.label = sede;
-            (ubicacionesObj[sede] || []).forEach(area => og.appendChild(new Option(`${sede} - ${area}`, `${sede} - ${area}`)));
-            selectEl.appendChild(og);
+        const og = document.createElement('optgroup'); og.label = sede;
+        (ubicacionesObj[sede] || []).forEach(area =>
+            og.appendChild(new Option(`${sede} - ${area}`, `${sede} - ${area}`))
+        );
+        selectEl.appendChild(og);
         }
-        if (allowAdd) selectEl.appendChild(new Option(addLabel, '__add__'));
         selectEl.value = selected || '';
     }
     initIngreso();
