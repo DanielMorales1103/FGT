@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
 const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE, eliminarDeCatalogo} = require('./src/backend/catalogo');
@@ -64,6 +64,19 @@ ipcMain.handle('delete-catalogo-item', async (_evt, { catalogo, valor, grupo }) 
   return { success: true, items: catalogo === 'ubicaciones' ? cats.ubicaciones : cats[catalogo] };
 });
 
+ipcMain.handle('ui-confirm', async (_evt, { message, detail }) => {
+    const win = BrowserWindow.getFocusedWindow();
+    const { response } = await dialog.showMessageBox(win, {
+        type: 'question',
+        buttons: ['Cancelar', 'Eliminar'],
+        defaultId: 1,
+        cancelId: 0,
+        message,
+        detail: detail || '',
+        noLink: true
+    });
+    return response === 1; // true si pulsó "Eliminar"
+});
 
 // Esto es para cerrar correctamente en Mac
 app.on('window-all-closed', () => {

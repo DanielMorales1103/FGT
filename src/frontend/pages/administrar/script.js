@@ -236,7 +236,11 @@
 
     // --------- Deletes ----------
     async function deleteSimple(key, value) {
-        if (!confirm(`¿Eliminar "${value}" de ${key}?`)) return;
+        const ok = await ipcRenderer.invoke('ui-confirm', {
+            message: `¿Eliminar "${value}" de ${key}?`
+        });
+        if (!ok) return;
+
         try {
             const resp = await ipcRenderer.invoke('delete-catalogo-item', { catalogo: key, valor: value });
             if (resp?.success) {
@@ -249,8 +253,13 @@
         }
     }
 
+
     async function deleteUbicacion(sede, area) {
-        if (!confirm(`¿Eliminar el área "${area}" de "${sede}"?`)) return;
+        const ok = await ipcRenderer.invoke('ui-confirm', {
+            message: `¿Eliminar el área "${area}" de "${sede}"?`
+        });
+        if (!ok) return;
+
         try {
             const resp = await ipcRenderer.invoke('delete-catalogo-item', { catalogo: 'ubicaciones', grupo: sede, valor: area });
             if (resp?.success) {
@@ -262,6 +271,7 @@
             console.error(e); toast('Error al eliminar', true);
         }
     }
+
 
     // --------- Toast ----------
     let toastTimer = null;
