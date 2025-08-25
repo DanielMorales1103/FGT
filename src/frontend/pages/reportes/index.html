@@ -1,4 +1,107 @@
 <div class="page-container">
-    <h1>Reportes</h1>
+    <h1>📊 Reportes y Estadísticas</h1>
     <p>Consulta estadísticas y reportes de los activos registrados.</p>
+
+    <!-- Filtros por fecha -->
+    <div class="filtros-reportes">
+        <div class="filtro-grupo">
+            <label>Año:</label>
+            <select id="filtro-anio">
+                <option value="">Todos los años</option>
+            </select>
+        </div>
+        <div class="filtro-grupo">
+            <label>Mes:</label>
+            <select id="filtro-mes">
+                <option value="">Todos los meses</option>
+                <option value="01">Enero</option>
+                <option value="02">Febrero</option>
+                <option value="03">Marzo</option>
+                <option value="04">Abril</option>
+                <option value="05">Mayo</option>
+                <option value="06">Junio</option>
+                <option value="07">Julio</option>
+                <option value="08">Agosto</option>
+                <option value="09">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+        </div>
+        <button id="btn-actualizar-reportes" class="btn-primario">Actualizar Reportes</button>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="resumen-general">
+        <div class="tarjeta">
+            <h3>💰 Total General</h3>
+            <p class="valor" id="total-general">Q 0.00</p>
+        </div>
+        <div class="tarjeta">
+            <h3>📦 Total Activos</h3>
+            <p class="valor" id="total-activos">0</p>
+        </div>
+    </div>
+
+    <!-- Gráficas y Tablas -->
+    <div class="grid-reportes">
+        <!-- Por Categoría -->
+        <div class="seccion-reporte">
+            <h3>📋 Por Categoría</h3>
+            <div class="grafica-container">
+                <canvas id="grafica-categoria"></canvas>
+            </div>
+            <div class="tabla-container">
+                <table class="tabla-reporte" id="tabla-categoria">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Valor Total</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Por Ubicación -->
+        <div class="seccion-reporte">
+            <h3>🏢 Por Ubicación</h3>
+            <div class="grafica-container">
+                <canvas id="grafica-ubicacion"></canvas>
+            </div>
+            <div class="tabla-container">
+                <table class="tabla-reporte" id="tabla-ubicacion">
+                    <thead>
+                        <tr>
+                            <th>Ubicación</th>
+                            <th>Valor Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Por Mes/Año -->
+        <div class="seccion-reporte full-width">
+            <h3>📅 Evolución Temporal</h3>
+            <div class="grafica-container">
+                <canvas id="grafica-temporal"></canvas>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="mensual">Mensual</button>
+                <button class="tab-btn" data-tab="anual">Anual</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de Exportar -->
+    <div class="acciones-reportes">
+        <button id="btn-exportar-reportes" class="btn-secundario">📄 Exportar a Excel</button>
+    </div>
 </div>
+
+<!-- Incluir Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
