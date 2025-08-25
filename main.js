@@ -1,13 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-<<<<<<< Updated upstream
-const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
-=======
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos');
 const { generarReportes } = require('./src/backend/reportes');
 const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE, eliminarDeCatalogo} = require('./src/backend/catalogo');
 const { importDesdeExcel } = require('./src/backend/importer');
->>>>>>> Stashed changes
 
 let activosCache = [];
 
@@ -44,8 +40,6 @@ ipcMain.handle('save-activos', async (event, nuevosActivos) => {
     return { success: true };
 });
 
-<<<<<<< Updated upstream
-=======
 ipcMain.handle('add-activo', async (event, nuevoActivo) => {
     const actuales = leerArchivo();
     actuales.push(nuevoActivo);
@@ -143,7 +137,6 @@ ipcMain.handle('exportar-reportes', async (event, reportesData) => {
 });
 
 
->>>>>>> Stashed changes
 // Esto es para cerrar correctamente en Mac
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
