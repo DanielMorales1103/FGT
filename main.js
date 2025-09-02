@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos');
 const { generarReportes } = require('./src/backend/reportes');
@@ -23,12 +23,14 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
+    ensureFile();
+    const cats = leerCatalogos();
     activosCache = leerArchivo();
     createWindow();
 })
 
 ipcMain.handle('get-activos', async () => {
-    return activosCache;
+    return leerArchivo();
 });
 
 ipcMain.handle('get-reportes', async () => {

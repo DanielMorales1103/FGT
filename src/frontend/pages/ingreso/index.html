@@ -3,67 +3,67 @@
     <form id="ingreso-form">
         <div class="form-group">
             <label>Financiado por:</label>
-            <input type="text" name="financiado_por">
+            <input type="text" name="financiado_por" required />
         </div>
         <div class="form-group">
             <label>Proyecto:</label>
-            <input type="text" name="proyecto">
+            <input type="text" name="proyecto" required />
         </div>
         <div class="form-group">
             <label>Clasificación (Tipo de activo):</label>
-            <input type="text" name="clasificacion">
+            <select id="sel-clasificacion" name="clasificacion" required></select>
         </div>
         <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Cantidad:</label>
-            <input type="number" name="cantidad" min="1">
+            <input type="number" name="cantidad" min="1" required />
         </div>
         <div class="form-group">
             <label>Costo unitario (Q):</label>
-            <input type="number" name="costo_unitario" step="0.01">
+            <input type="number" name="costo_unitario" step="0.01" min="0.01" required />
         </div>
         <div class="form-group">
             <label>Costo total:</label>
-            <input type="number" name="costo_total" step="0.01" readonly>
+            <input type="number" name="costo_total" step="0.01" readonly />
         </div>
         <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Fecha de compra:</label>
-            <input type="date" name="fecha_compra">
+            <input type="date" name="fecha_compra" required />
         </div>
         <div class="form-group">
             <label>Proveedor:</label>
-            <input type="text" name="proveedor">
+            <select id="sel-proveedor" name="proveedor" required></select>
         </div>
         <div class="form-group">
             <label>No. Factura:</label>
-            <input type="text" name="no_factura">
+            <input type="text" name="no_factura" required />
         </div>
         <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Concepto:</label>
-            <input type="text" name="concepto">
+            <input type="text" name="concepto" required />
         </div>
         <div class="form-group">
             <label>No. de serie:</label>
-            <input type="text" name="no_serie">
+            <input type="text" name="no_serie" required />
         </div>
         <div class="form-group">
             <label>Descripción:</label>
-            <input type="text" name="descripcion">
+            <input type="text" name="descripcion" required />
         </div>
         <!-- ------------------------------------ -->
         <div class="form-group">
             <label>Estado:</label>
-            <input type="text" name="estado">
+             <select id="sel-estado" name="estado" required></select>
         </div>
         <div class="form-group">
             <label>Ubicación física:</label>
-            <input type="text" name="ubicacion_fisica">
+            <select id="sel-ubicacion" name="ubicacion_fisica" required></select>
         </div>
         <div class="form-group">
             <label>Responsable:</label>
-            <input type="text" name="responsable">
+            <input type="text" name="responsable" required />
         </div>
         <!-- ------------------------------------ -->
         <div class="form-group full-width">

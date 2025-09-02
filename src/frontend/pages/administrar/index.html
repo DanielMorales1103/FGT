@@ -1,0 +1,52 @@
+<div class="administrar-container">
+    <h1>Administrar datos seleccionables</h1>
+    <div class="tabs">
+        <button class="tab active" data-tab="clasificaciones">Clasificaciones</button>
+        <button class="tab" data-tab="proveedores">Proveedores</button>
+        <button class="tab" data-tab="estados">Estados</button>
+        <button class="tab" data-tab="ubicaciones">Ubicaciones</button>
+    </div>
+
+    <div class="panel-toolbar">
+        <div class="search">
+            <input id="search-input" type="text" placeholder="Buscar en la pestaña actual…">
+        </div>
+        <div class="counts" id="count-label">0 elementos</div>
+    </div>
+
+    <!-- Paneles -->
+    <section id="panel-clasificaciones" class="panel active">
+        <div class="add-row">
+            <input id="add-clasificacion" type="text" placeholder="Nueva clasificación">
+            <button id="btn-add-clasificacion" class="btn primary">Agregar</button>
+        </div>
+        <ul id="list-clasificaciones" class="list"></ul>
+    </section>
+
+    <section id="panel-proveedores" class="panel">
+        <div class="add-row">
+            <input id="add-proveedor" type="text" placeholder="Nuevo proveedor">
+            <button id="btn-add-proveedor" class="btn primary">Agregar</button>
+        </div>
+        <ul id="list-proveedores" class="list"></ul>
+    </section>
+
+    <section id="panel-estados" class="panel">
+        <div class="add-row">
+            <input id="add-estado" type="text" placeholder="Nuevo estado">
+            <button id="btn-add-estado" class="btn primary">Agregar</button>
+        </div>
+        <ul id="list-estados" class="list"></ul>
+    </section>
+
+    <section id="panel-ubicaciones" class="panel">
+        <div class="add-grid">
+            <input id="new-sede" type="text" placeholder='Nueva sede/Oficina (p. ej. "Oficina Central")'>
+            <button id="btn-add-sede" class="btn primary">Agregar sede</button>
+        </div>
+
+        <div id="accord-ubicaciones" class="accordion"></div>
+    </section>
+</div>
+
+<div id="toast" class="toast"></div>

@@ -1,25 +1,55 @@
 (() => {
-    const ipcRenderer = window.ipc;
+    const { ipcRenderer } = require('electron');
 
     var activos = [];
+    let catsCache = null;
 
-    ipcRenderer.invoke('get-activos')
-        .then(data => {
-            activos = data;
-            renderTabla();
-        })
+    // ---------- Carga inicial ----------
+    (async () => {
+        catsCache = await ipcRenderer.invoke('get-catalogos'); // clasificaciones, proveedores, estados, ubicaciones
+        activos   = await ipcRenderer.invoke('get-activos');
+        renderTabla();
+        seguroRenderTabla(); // por si el tbody aún no está presente
+    })();
+
+    // ---------- Helpers para selects ----------
+    function fillSimple(selectEl, items, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        (items || []).forEach(v => selectEl.appendChild(new Option(v, v)));
+        selectEl.value = selected || '';
+    }
+
+    function fillUbicaciones(selectEl, ubicacionesObj, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        const sedes = Object.keys(ubicacionesObj || {}).sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+        for (const sede of sedes) {
+        const og = document.createElement('optgroup'); og.label = sede;
+        (ubicacionesObj[sede] || []).forEach(area => og.appendChild(new Option(`${sede} - ${area}`, `${sede} - ${area}`)));
+        selectEl.appendChild(og);
+        }
+        selectEl.value = selected || '';
+    }
 
     function claseEstado(estado) {
-        switch (estado) {
-            case "Operativo": return "operativo";
-            case "En reparación": return "en-reparacion";
-            case "Fuera de servicio": return "fuera-servicio";
-            default: return "";
-        }
+        const n = String(estado || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita acentos
+            .trim().toLowerCase();
+
+        // Canoniza a 3 valores
+        if (n === 'buen estado')             return 'operativo';       // verde
+        if (n === 'mal estado')              return 'fuera-servicio';  // rojo
+        if (n === 'necesita reparacion')     return 'en-reparacion';   // naranja
+        return ''; // sin clase si no matchea
     }
+
 
     function renderTabla(lista = activos) {
         const tbody = document.getElementById("activos-body");
+        if (!tbody) return;
         tbody.innerHTML = "";
         let total = 0;
 
@@ -45,7 +75,6 @@
         document.getElementById("totales").innerHTML = 
             `Total activos: <strong>${activos.length}</strong> | Valor total: <strong>Q ${total.toLocaleString()}</strong>`;
     }
-
 
     function mostrarDetalle(idx) {
         const a = activos[idx];
@@ -76,14 +105,21 @@
         document.getElementById("detalle-modal").style.display = "none";
     }
 
-    window.onclick = function(event) {
-        if (event.target == document.getElementById("detalle-modal")) {
-            cerrarModal();
-        }
+    async function ensureCats() {
+        if (!catsCache) catsCache = await ipcRenderer.invoke('get-catalogos');
     }
 
-    function mostrarEditar(idx) {
+    async function mostrarEditar(idx) {
+        await ensureCats();
         const activo = activos[idx];
+
+        fillSimple(document.getElementById("edit-clasificacion"), catsCache?.clasificaciones);
+        fillSimple(document.getElementById("edit-proveedor"),     catsCache?.proveedores);
+        // Estados: si quieres agregar desde modal, cambia false → true y usa setupAddHandlers
+        fillSimple(document.getElementById("edit-estado"),        catsCache?.estados);
+        fillUbicaciones(document.getElementById("edit-ubicacion_fisica"), catsCache?.ubicaciones);
+
+
         document.getElementById("edit-index").value = idx;
         document.getElementById("edit-financiado_por").value = activo.financiado_por || "";
         document.getElementById("edit-proyecto").value = activo.proyecto || "";
@@ -104,7 +140,6 @@
 
         document.getElementById("editar-modal").style.display = "flex";
     }
-
 
     function cerrarEditarModal() {
         document.getElementById("editar-modal").style.display = "none";
@@ -140,6 +175,20 @@
         renderTabla();
     }
 
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("detalle-modal")) {
+            cerrarModal();
+        }
+        if (event.target == document.getElementById("editar-modal")) {
+            cerrarEditarModal();
+        }
+    }
+
+    window.mostrarDetalle = mostrarDetalle;
+    window.mostrarEditar = mostrarEditar;
+    window.cerrarModal = cerrarModal;
+    window.cerrarEditarModal = cerrarEditarModal;
+    window.guardarEdicion = guardarEdicion;
 
     document.addEventListener('input', function(e) {
         if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
@@ -172,11 +221,52 @@
         .toLowerCase();
     }
 
+    function fillSelectSimple(selectEl, items, firstLabel) {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option(firstLabel, ''));
+        (items || []).forEach(v => selectEl.appendChild(new Option(v, v)));
+    }
+
+    function fillSelectUbicaciones(selectEl, ubicacionesObj, firstLabel) {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option(firstLabel, ''));
+        const sedes = Object.keys(ubicacionesObj || {}).sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+        for (const sede of sedes) {
+            const og = document.createElement('optgroup');
+            og.label = sede;
+            (ubicacionesObj[sede] || []).forEach(area => {
+                const val = `${sede} - ${area}`;
+                og.appendChild(new Option(val, val));
+            });
+            selectEl.appendChild(og);
+        }
+    }
+
+    async function populateFilterSelects() {
+        // Si ya tienes catsCache cargado, úsalo; si no, pídelo:
+        const cats = (typeof catsCache !== 'undefined' && catsCache) ? catsCache : await ipcRenderer.invoke('get-catalogos');
+
+        // Estado: usa lo que venga del catálogo
+        fillSelectSimple(document.getElementById('filtro-estado'), cats.estados, '— Todos los estados —');
+
+        // Clasificación
+        fillSelectSimple(document.getElementById('filtro-clasificacion'), cats.clasificaciones, '— Todas las clasificaciones —');
+
+        // Ubicación (con optgroups por sede)
+        fillSelectUbicaciones(document.getElementById('filtro-ubicacion'), cats.ubicaciones, '— Todas las ubicaciones —');
+    }
+
+    // Llama a esto en tu init de la página de activos, antes de enganchar eventos de filtros:
+    populateFilterSelects();
+
+
     function applyFilters() {
         const texto   = stripAccents(document.getElementById('filtro-busqueda').value);
-        const estado  = document.getElementById('filtro-estado').value;
-        const clasif  = stripAccents(document.getElementById('filtro-clasificacion').value);
-        const ubic    = stripAccents(document.getElementById('filtro-ubicacion').value);
+        const estado  = document.getElementById('filtro-estado').value;           
+        const clasif  = document.getElementById('filtro-clasificacion').value;    
+        const ubicSel = document.getElementById('filtro-ubicacion').value;        
         const resp    = stripAccents(document.getElementById('filtro-responsable').value);
         const desde   = document.getElementById('filtro-fecha-desde').value;
         const hasta   = document.getElementById('filtro-fecha-hasta').value;
@@ -184,29 +274,27 @@
         const maxCost = parseFloat(document.getElementById('filtro-costo-max').value) || Infinity;
 
         const filtrados = activos.filter(a => {
-            const conc  = stripAccents(a.concepto);
-            const prov  = stripAccents(a.proveedor);
-            const respA = stripAccents(a.responsable);
-            const clas  = stripAccents(a.clasificacion);
-            const ubi   = stripAccents(a.ubicacion_fisica);
-            const fc    = a.fecha_compra;
-            const ct    = a.costo_total;
+            const conc  = stripAccents(a.concepto || '');
+            const prov  = stripAccents(a.proveedor || '');
+            const respA = stripAccents(a.responsable || '');
+            const clas  = a.clasificacion || '';
+            const ubi   = a.ubicacion_fisica || '';
+            const fc    = a.fecha_compra || '';
+            const ct    = Number(a.costo_total || 0);
 
             // Cada condición de filtro
-            const matchTexto = !texto
-                || conc.includes(texto)
-                || prov.includes(texto)
-                || respA.includes(texto);
+            const matchTexto = !texto || conc.includes(texto) || prov.includes(texto) || respA.includes(texto);
 
             const matchEstado = !estado || a.estado === estado;
-            const matchClasif = !clasif  || clas.includes(clasif);
-            const matchUbic   = !ubic    || ubi.includes(ubic);
+            const matchClasif = !clasif || clas === clasif;
+            const matchUbic   = !ubicSel || ubi === ubicSel;
+
             const matchResp   = !resp    || respA.includes(resp);
 
             const matchFecha  = (!desde || fc >= desde) && (!hasta || fc <= hasta);
             const matchCosto  = ct >= minCost && ct <= maxCost;
 
-            return matchTexto && matchEstado && matchClasif && matchUbic
+            return matchTexto && matchEstado && matchClasif && matchUbic 
                 && matchResp && matchFecha && matchCosto;
         });
 

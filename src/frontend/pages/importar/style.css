@@ -15,3 +15,28 @@
     color: #34495e;
     font-size: 16px;
 }
+
+.drop-zone {
+  border: 2px dashed #2980b9;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: #2980b9;
+  background-color: #ecf6fc;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+  user-select: none;
+  margin-bottom: 12px;
+}
+
+.drop-zone.dragover {
+  background-color: #d6eaf8;
+  border-color: #1a5276;
+}
+
+.file-info {
+  margin: 8px 0 16px;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+

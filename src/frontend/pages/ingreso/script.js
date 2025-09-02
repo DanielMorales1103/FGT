@@ -1,10 +1,5 @@
 (() => {
-    const ipcRenderer = window.ipc;
-    var activos = [];
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        activos = await ipcRenderer.invoke('get-activos');
-    });
+    const { ipcRenderer } = require('electron'); 
 
     document.addEventListener('input', function(e) {
         if (e.target.name === "cantidad" || e.target.name === "costo_unitario") {
@@ -19,7 +14,43 @@
         document.querySelector('[name="costo_total"]').value = total.toFixed(2);
     }
 
+    async function initIngreso() {
+        const selClas = document.getElementById('sel-clasificacion');
+        if (!selClas) return; // si no es esta página, salir
 
+        const cats = await ipcRenderer.invoke('get-catalogos');
+
+        // Llenar selects SIN opción de agregar
+        fillSimple(document.getElementById('sel-clasificacion'), cats.clasificaciones);
+        fillSimple(document.getElementById('sel-proveedor'),     cats.proveedores);
+        fillSimple(document.getElementById('sel-estado'),        cats.estados);
+        fillUbicaciones(document.getElementById('sel-ubicacion'), cats.ubicaciones);
+    }
+
+    // Helpers sin modo "agregar"
+    function fillSimple(selectEl, items, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        (items || []).forEach(v => selectEl.appendChild(new Option(v, v)));
+        selectEl.value = selected || '';
+    }
+
+    function fillUbicaciones(selectEl, ubicacionesObj, selected = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '';
+        selectEl.appendChild(new Option('— Seleccione —', ''));
+        const sedes = Object.keys(ubicacionesObj || {}).sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+        for (const sede of sedes) {
+        const og = document.createElement('optgroup'); og.label = sede;
+        (ubicacionesObj[sede] || []).forEach(area =>
+            og.appendChild(new Option(`${sede} - ${area}`, `${sede} - ${area}`))
+        );
+        selectEl.appendChild(og);
+        }
+        selectEl.value = selected || '';
+    }
+    initIngreso();
     const form = document.getElementById('ingreso-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -43,19 +74,22 @@
             observaciones:    form.observaciones.value
         };
 
-        // 4.2) Agrégalo al array y guarda en el archivo
-        activos.push(nuevo);
-        const respuesta = await ipcRenderer.invoke('save-activos', activos);
-
-        if (respuesta.success) {
-            // 4.3) Actualiza UI y limpia el form
+        try {
+        const { success } = await ipcRenderer.invoke('add-activo', nuevo);
+        if (success) {
             alert('Activo guardado correctamente');
             form.reset();
             form.querySelector('[name="costo_total"]').value = '';
-            // si quieres volver a la lista:
-            // loadPage('activos');
+            // opción: navegar a la lista (recomendado)
+            // window.location.href = '../activos/index.html';
         } else {
             alert('Error al guardar');
+        }
+        } catch (err) {
+            console.error(err);
+            alert('Error inesperado al guardar');
+        } finally {
+        saving = false;
         }
     });
 
