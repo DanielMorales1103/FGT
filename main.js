@@ -3,6 +3,8 @@ const path = require('path');
 const { guardarArchivo, leerArchivo } = require('./src/backend/activos'); // carga de backend
 const { leerCatalogos, agregarAlCatalogo, agregarUbicacion, ensureFile, CATALOG_FILE, eliminarDeCatalogo} = require('./src/backend/catalogo');
 const { importDesdeExcel } = require('./src/backend/importer');
+const { generarReportes } = require('./src/backend/reportes');
+
 
 let activosCache = [];
 
@@ -49,6 +51,10 @@ ipcMain.handle('get-catalogos', async () => {
     return leerCatalogos(); 
 });
 
+ipcMain.handle('get-reportes', async () => {
+    return generarReportes();
+});
+
 ipcMain.handle('add-catalogo-item', async (event, payload) => {
     const { catalogo, valor, grupo } = payload || {};
     if (catalogo === 'ubicaciones') {
@@ -91,7 +97,48 @@ ipcMain.handle('import-excel', async (_evt, { filePath, buffer, sheetName }) => 
     }
 });
 
-// Esto es para cerrar correctamente en Mac
+ipcMain.handle('exportar-reportes', async (event, reportesData) => {
+    const { filePath } = await dialog.showSaveDialog({
+        title: 'Exportar Reportes',
+        defaultPath: 'reportes_activos.xlsx',
+        filters: [{ name: 'Excel', extensions: ['xlsx'] }]
+    });
+    
+    if (filePath) {
+        const XLSX = require('xlsx');
+        const datosExcel = [
+            ['REPORTE DE ACTIVOS', '', ''],
+            ['Fecha generación', new Date().toLocaleDateString(), ''],
+            ['', '', ''],
+            ['TOTAL GENERAL', `Q ${reportesData.totalGeneral.toLocaleString()}`, ''],
+            ['TOTAL ACTIVOS', reportesData.totalActivos, ''],
+            ['', '', ''],
+            ['POR CATEGORÍA', 'VALOR', 'PORCENTAJE']
+        ];
+
+        Object.entries(reportesData.porCategoria).forEach(([categoria, valor]) => {
+            const porcentaje = ((valor / reportesData.totalGeneral) * 100).toFixed(1);
+            datosExcel.push([categoria, valor, `${porcentaje}%`]);
+        });
+
+        datosExcel.push(['', '', '']);
+        datosExcel.push(['POR UBICACIÓN', 'VALOR', '']);
+        
+        Object.entries(reportesData.porUbicacion).forEach(([ubicacion, valor]) => {
+            datosExcel.push([ubicacion, valor, '']);
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(datosExcel);
+        XLSX.utils.book_append_sheet(wb, ws, "Reportes");
+        XLSX.writeFile(wb, filePath);
+        
+        return { success: true, path: filePath };
+    }
+    
+    return { success: false };
+});
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
