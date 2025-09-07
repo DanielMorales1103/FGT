@@ -67,6 +67,7 @@
                 <td>
                     <button class="btn-accion" onclick="mostrarDetalle(${idx})">🔍</button>
                     <button class="btn-accion" onclick="mostrarEditar(${idx})">✏️</button>
+                    <button class="btn-accion" onclick="eliminarActivo(${idx})">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -175,6 +176,38 @@
         renderTabla();
     }
 
+    async function eliminarActivo(idx) {
+        const a = activos[idx];
+        if (!a) return;
+
+        const ok = await ipcRenderer.invoke('ui-confirm', {
+            message: '¿Eliminar este activo?',
+            detail: `${a.concepto || ''} — ${a.responsable || ''}`
+        });
+        if (!ok) return;
+
+        const nuevos = [...activos];
+        nuevos.splice(idx, 1);
+
+        const res = await ipcRenderer.invoke('save-activos', nuevos);
+        if (res?.success) {
+            activos = nuevos;
+            // Reaplicar filtros si hay; si no, render general
+            const hayFiltros = [
+                'filtro-busqueda','filtro-estado','filtro-clasificacion','filtro-ubicacion',
+                'filtro-responsable','filtro-fecha-desde','filtro-fecha-hasta',
+                'filtro-costo-min','filtro-costo-max'
+            ].some(id => (document.getElementById(id)?.value || '') !== '');
+            if (hayFiltros && typeof applyFilters === 'function') {
+                applyFilters();
+            } else {
+                renderTabla();
+            }
+        } else {
+            alert('No se pudo eliminar.');
+        }
+    }
+
     window.onclick = function(event) {
         if (event.target == document.getElementById("detalle-modal")) {
             cerrarModal();
@@ -189,6 +222,7 @@
     window.cerrarModal = cerrarModal;
     window.cerrarEditarModal = cerrarEditarModal;
     window.guardarEdicion = guardarEdicion;
+    window.eliminarActivo = eliminarActivo;
 
     document.addEventListener('input', function(e) {
         if (e.target.id === "edit-cantidad" || e.target.id === "edit-costo_unitario") {
