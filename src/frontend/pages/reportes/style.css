@@ -110,12 +110,18 @@
 
 .grafica-container {
     position: relative;
-    height: 300px;
+    height: clamp(240px, 35vw, 420px);
     margin: 20px 0;
     background: white;
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.grafica-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
 }
 
 /* Leyendas de gráficas */
@@ -217,3 +223,21 @@
 
 .btn-primario:hover { background: #2980b9; }
 .btn-secundario:hover { background: #1f965a; }
+
+
+@media (max-width: 1100px) {
+    .grid-reportes {
+        grid-template-columns: 1fr;   
+    }
+    .seccion-reporte.full-width {   
+        grid-column: 1 / -1;
+    }
+    .grafica-container {
+        height: clamp(220px, 45vw, 360px);
+    }
+}
+
+@media (max-width: 600px) {
+    .page-container { padding: 16px; }
+    .grafica-container { height: 260px; } 
+}
