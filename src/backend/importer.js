@@ -106,6 +106,25 @@ function buildColumnMap(ws) {
     return colToKey;
 }
 
+function canonEstado(v) {
+    const n = norm(v);
+    if (n === 'buen estado')         return 'Buen estado';
+    if (n === 'mal estado')          return 'Mal estado';
+    if (n === 'necesita reparacion') return 'Necesita reparación';
+    return '';
+}
+
+
+function isDup(a, b) {
+    return (
+        norm(a.concepto)         === norm(b.concepto) &&
+        norm(a.responsable)      === norm(b.responsable) &&
+        String(a.fecha_compra||'').slice(0,10) === String(b.fecha_compra||'').slice(0,10) &&
+        norm(a.ubicacion_fisica) === norm(b.ubicacion_fisica) &&
+        norm(a.proveedor)        === norm(b.proveedor) &&
+        norm(a.no_factura)       === norm(b.no_factura)
+    );
+}
 
 // -------------------- Importador --------------------
 /**
@@ -181,6 +200,7 @@ async function importDesdeExcel({ filePath, buffer, sheetName } = {}) {
                     case 'costo_unitario':  obj.costo_unitario = num(v); break;
                     case 'costo_total':     obj.costo_total    = num(v); break;
                     case 'fecha_compra':    obj.fecha_compra   = toDateYYYYMMDD(v); break;
+                    case 'estado':          obj.estado         = canonEstado(v); break;
                     default:                obj[key] = String(v ?? '').trim();
                 }
             }
@@ -201,12 +221,23 @@ async function importDesdeExcel({ filePath, buffer, sheetName } = {}) {
         }
     }
 
+    let skipped_dupes = 0;
+    const unicosExcel = [];
+    for (const n of nuevos) {
+        const dup = unicosExcel.some(x => isDup(x, n));
+        if (dup) { skipped_dupes++; continue; }
+        unicosExcel.push(n);
+    }
+
+    const paraInsertar = unicosExcel.filter(n => !actuales.some(a => isDup(a, n)));
+    skipped_dupes += (unicosExcel.length - paraInsertar.length);
+
     // 4) Guardar (append)
-    if (nuevos.length) {
+    if (paraInsertar.length) {
         guardarArchivo([...actuales, ...nuevos]); // SE AGREGAN, NO SE SOBREESCRIBEN
     }
 
-    return { inserted: nuevos.length, errors: errores };
+    return { inserted: paraInsertar.length, skipped_dupes, errors: errores };
 }
 
 module.exports = { importDesdeExcel };

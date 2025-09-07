@@ -74,7 +74,7 @@
       else if (selected.buffer) payload.buffer = selected.buffer;
       else throw new Error('No se recibió archivo');
 
-      const { success, inserted, errors, message } = await ipcRenderer.invoke('import-excel', payload);
+      const { success, inserted, skipped_dupes, errors, message } = await ipcRenderer.invoke('import-excel', payload);
 
       if (!success) {
         alert('Error al importar: ' + (message || 'desconocido'));
@@ -82,6 +82,9 @@
       }
 
       let msg = `Importación completada.\nInsertados: ${inserted}`;
+      if (typeof skipped_dupes === 'number') {
+        msg += `\nDuplicados saltados: ${skipped_dupes}`;
+      }
       if (errors?.length) {
         msg += `\nCon errores en ${errors.length} fila(s):\n` +
                errors.slice(0, 5).map(e => `Fila ${e.fila}: ${e.error}`).join('\n') +
