@@ -75,16 +75,18 @@
         };
 
         try {
-        const { success } = await ipcRenderer.invoke('add-activo', nuevo);
-        if (success) {
-            alert('Activo guardado correctamente');
-            form.reset();
-            form.querySelector('[name="costo_total"]').value = '';
-            // opción: navegar a la lista (recomendado)
-            // window.location.href = '../activos/index.html';
-        } else {
-            alert('Error al guardar');
-        }
+            const res = await ipcRenderer.invoke('add-activo', nuevo);
+            if (res.success === true) {
+                alert('Activo guardado correctamente');
+                form.reset();
+                form.querySelector('[name="costo_total"]').value = '';
+                // opción: navegar a la lista (recomendado)
+                // window.location.href = '../activos/index.html';
+            } else if (res.duplicate) {
+                alert(res.message);
+            } else {
+                alert('Error al guardar');
+            }
         } catch (err) {
             console.error(err);
             alert('Error inesperado al guardar');

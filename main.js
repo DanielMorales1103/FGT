@@ -42,6 +42,30 @@ ipcMain.handle('save-activos', async (event, nuevosActivos) => {
 
 ipcMain.handle('add-activo', async (event, nuevoActivo) => {
     const actuales = leerArchivo();
+
+    const norm = (s) =>
+    String(s ?? '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .trim().toLowerCase();
+    
+    const isDup = (a, b) =>
+        norm(a.concepto)         === norm(b.concepto) &&
+        norm(a.responsable)      === norm(b.responsable) &&
+        String(a.fecha_compra||'').slice(0,10) === String(b.fecha_compra||'').slice(0,10) && // fecha canon YYYY-MM-DD
+        norm(a.ubicacion_fisica) === norm(b.ubicacion_fisica) &&
+        norm(a.proveedor)        === norm(b.proveedor) &&
+        norm(a.no_factura)       === norm(b.no_factura);
+    
+    const yaExiste = actuales.some(a => isDup(a, nuevoActivo));
+
+    if (yaExiste) {
+        return {
+            success: false,
+            duplicate: true,
+            message: 'El activo ya existe con los mismos: concepto, responsable, fecha de compra, ubicación física, proveedor y No. factura.'
+        };
+    }
+
     actuales.push(nuevoActivo);
     guardarArchivo(actuales);
     return { success: true, activos: actuales };
