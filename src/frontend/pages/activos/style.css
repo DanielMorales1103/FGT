@@ -151,13 +151,15 @@
 
 .filtros-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     width: 100%;
 }
 
 .filtros-row .filtro-grupo {
-    flex: 1;
+    flex: 1 1 260px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
@@ -167,7 +169,7 @@
 }
 
 .filtros-row .filtro-boton {
-    flex: 1;
+    flex: 0 1 200px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -186,7 +188,8 @@
 
 .filtro-grupo input,
 .filtro-grupo select {
-    flex: 1;
+    flex: 1 1 160px;
+    min-width: 0;
     font-family: inherit;
     font-size: inherit;
     padding: 6px 8px;
@@ -196,6 +199,32 @@
 }
 
 .filtro-grupo label {
+    flex: 0 0 100%;
     white-space: nowrap;
     font-weight: 500;
+}
+
+/* Contenedor principal: ajusta padding en pantallas pequeñas */
+@media (max-width: 900px) {
+  .activos-container {
+    padding: 24px;
+  }
+  /* En <=900px, fuerza que cada grupo ocupe la fila completa si lo deseas */
+  .filtros-row .filtro-grupo {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .filtros-row .filtro-boton {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .activos-container {
+    padding: 16px;
+  }
+  .modal-content {
+    width: 94%;
+    margin: 12% auto;
+  }
 }
