@@ -1,20 +1,54 @@
 {
   "name": "fgt",
+  "productName": "FGT",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sistema de inventario de activos para FGT.",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "build:nsis": "electron-builder --win nsis"
+  },
+  "build":{
+    "appId": "org.fgt.activos",
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg"]
+    },
+    "nsis": {
+      "oneClick": true,                      
+      "perMachine": false,                  
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "FGT - Inventario de Activos"
+    }
   },
   "keywords": [],
-  "author": "",
+  "author": "Daniel Morales y Jennifer Toxcon",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^36.5.0"
+    "@electron-forge/cli": "^7.8.3",
+    "@electron-forge/maker-deb": "^7.8.3",
+    "@electron-forge/maker-rpm": "^7.8.3",
+    "@electron-forge/maker-squirrel": "^7.8.3",
+    "@electron-forge/maker-zip": "^7.8.3",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
+    "@electron-forge/plugin-fuses": "^7.8.3",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^36.5.0",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "chart.js": "^4.5.0",
+    "electron-squirrel-startup": "^1.0.1",
     "exceljs": "^4.4.0",
     "xlsx": "^0.18.5"
   }
