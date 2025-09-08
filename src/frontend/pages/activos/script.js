@@ -46,13 +46,14 @@
         return ''; // sin clase si no matchea
     }
 
-
+    let _ultimaLista = [];
     function renderTabla(lista = activos) {
         const tbody = document.getElementById("activos-body");
         if (!tbody) return;
         tbody.innerHTML = "";
         let total = 0;
 
+        _ultimaLista = lista;         
         lista.forEach((a, idx) => {
             total += a.costo_total;
             const tr = document.createElement("tr");
@@ -206,6 +207,25 @@
         } else {
             alert('No se pudo eliminar.');
         }
+    }
+
+    const btnExport = document.getElementById('btn-exportar-activos');
+    if (btnExport) {
+        btnExport.addEventListener('click', async () => {
+            try {
+                const lista = _ultimaLista && _ultimaLista.length ? _ultimaLista : activos;
+                const res = await ipcRenderer.invoke('export-activos-excel', { rows: lista });
+                if (res?.canceled) return;
+                if (!res?.success) {
+                    alert('Error al exportar: ' + (res?.message || 'desconocido'));
+                    return;
+                }
+                alert('Exportado a:\n' + res.filePath);
+            } catch (err) {
+                console.error(err);
+                alert('Error inesperado al exportar');
+            }
+        });
     }
 
     window.onclick = function(event) {
